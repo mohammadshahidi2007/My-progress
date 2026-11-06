@@ -2,71 +2,204 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مسیر پیشرفت من</title>
+    <!-- استفاده از فونت زیبا -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <style>
-        body { font-family: sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0; }
-        header { background-color: #4CAF50; color: white; text-align: center; padding: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-        main { padding: 20px; }
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .progress-bar { background-color: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { background-color: #4CAF50; height: 100%; width: 0%; text-align: center; color: white; line-height: 20px; font-size: 12px; transition: width 0.3s ease; }
-        ul { list-style-type: none; padding: 0; }
-        li { padding: 10px 0; border-bottom: 1px solid #eee; }
-        button { background-color: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-family: inherit; }
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+        
+        /* هدر */
+        header { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; padding: 30px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); text-align: center; }
+        header h1 { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
+        header p { font-size: 14px; opacity: 0.9; }
+        
+        /* کارت درصد پیشرفت */
+        .progress-card { background: var(--surface); margin: -20px 20px 20px; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; }
+        .progress-info h3 { font-size: 16px; margin-bottom: 5px; }
+        .progress-info p { font-size: 12px; color: var(--text-muted); }
+        .circular-progress { width: 60px; height: 60px; border-radius: 50%; background: conic-gradient(var(--primary) 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: var(--primary); position: relative; }
+        .circular-progress::before { content: ""; position: absolute; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); }
+        .circular-progress span { position: relative; z-index: 1; }
+
+        /* لیست کارها */
+        .tasks-container { padding: 0 20px; }
+        .task-item { background: var(--surface); padding: 15px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.3s ease; border: 1px solid var(--border); }
+        .task-item.completed { opacity: 0.6; text-decoration: line-through; }
+        .task-left { display: flex; align-items: center; gap: 12px; }
+        .task-left input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .delete-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 18px; padding: 5px; opacity: 0.5; transition: opacity 0.2s; }
+        .delete-btn:hover { opacity: 1; }
+
+        /* دکمه افزودن کار */
+        .add-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; width: calc(100% - 40px); max-width: 400px; justify-content: center; }
+        .add-btn:active { transform: translateX(-50%) scale(0.95); }
+
+        /* فرم افزودن کار */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 500px; padding: 25px 20px; border-top-left-radius: 25px; border-top-right-radius: 25px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-content h3 { margin-bottom: 15px; font-size: 18px; text-align: center; }
+        .modal-content input { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-family: inherit; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .btn-cancel { background: #f1f5f9; color: var(--text-muted); }
+        .btn-save { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
     <header>
         <h1>مسیر پیشرفت</h1>
-        <p>برنامه‌ریزی و اهداف شخصی</p>
+        <p>امروز یک قدم به جلو برداریم</p>
     </header>
 
-    <main>
-        <div class="card">
-            <h2>درصد پیشرفت امروز</h2>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill">0%</div>
+    <div class="progress-card">
+        <div class="progress-info">
+            <h3>پیشرفت امروز</h3>
+            <p id="progress-text">۰ از ۰ کار انجام شده</p>
+        </div>
+        <div class="circular-progress" id="progress-circle">
+            <span id="progress-percent">0%</span>
+        </div>
+    </div>
+
+    <div class="tasks-container" id="task-list">
+        <!-- کارها اینجا به صورت داینامیک اضافه می‌شوند -->
+    </div>
+
+    <button class="add-btn" onclick="openModal()">
+        <span>+</span> افزودن کار جدید
+    </button>
+
+    <!-- فرم افزودن کار -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-content">
+            <h3>کار جدید چیست؟</h3>
+            <input type="text" id="task-input" placeholder="مثلاً: مطالعه ۳۰ دقیقه..." onkeypress="handleKeyPress(event)">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">انصراف</button>
+                <button class="btn-save" onclick="saveTask()">ذخیره</button>
             </div>
         </div>
-
-        <div class="card">
-            <h2>کارهای امروز</h2>
-            <ul id="task-list">
-                <li><label><input type="checkbox"> مطالعه کتاب</label></li>
-                <li><label><input type="checkbox"> ورزش صبحگاهی</label></li>
-                <li><label><input type="checkbox"> یادگیری برنامه‌نویسی</label></li>
-            </ul>
-            <button onclick="addTask()">+ افزودن کار جدید</button>
-        </div>
-    </main>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const progressFill = document.getElementById('progress-fill');
-            const taskList = document.getElementById('task-list');
+        // سیستم مدیریت داده‌ها با LocalStorage
+        let tasks = JSON.parse(localStorage.getItem('myProgressTasks')) || [
+            { id: 1, title: 'مطالعه کتاب', completed: false },
+            { id: 2, title: 'ورزش صبحگاهی', completed: false }
+        ];
 
-            function updateProgress() {
-                const total = taskList.querySelectorAll('input[type="checkbox"]').length;
-                const checked = taskList.querySelectorAll('input[type="checkbox"]:checked').length;
-                const percentage = total === 0 ? 0 : Math.round((checked / total) * 100);
-                progressFill.style.width = percentage + '%';
-                progressFill.textContent = percentage + '%';
-            }
+        const taskListEl = document.getElementById('task-list');
+        const progressCircle = document.getElementById('progress-circle');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressText = document.getElementById('progress-text');
+        const modal = document.getElementById('task-modal');
+        const taskInput = document.getElementById('task-input');
 
-            taskList.addEventListener('change', (e) => {
-                if (e.target.type === 'checkbox') updateProgress();
+        // تبدیل اعداد به فارسی
+        function toPersianNum(num) {
+            return num.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        // ذخیره در حافظه
+        function saveToLocalStorage() {
+            localStorage.setItem('myProgressTasks', JSON.stringify(tasks));
+        }
+
+        // به‌روزرسانی رابط کاربری
+        function renderTasks() {
+            taskListEl.innerHTML = '';
+            let completedCount = 0;
+
+            tasks.forEach(task => {
+                if (task.completed) completedCount++;
+
+                const div = document.createElement('div');
+                div.className = `task-item ${task.completed ? 'completed' : ''}`;
+                div.innerHTML = `
+                    <div class="task-left">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                        <span>${task.title}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})">🗑️</button>
+                `;
+                taskListEl.appendChild(div);
             });
 
-            window.addTask = function() {
-                const taskName = prompt("نام کار جدید را وارد کنید:");
-                if (taskName) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<label><input type="checkbox"> ${taskName}</label>`;
-                    taskList.appendChild(li);
-                }
-            };
+            // محاسبه درصد
+            const total = tasks.length;
+            const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            
+            // آپدیت دایره پیشرفت
+            progressCircle.style.background = `conic-gradient(var(--primary) ${percent}%, #e2e8f0 ${percent}%)`;
+            progressPercent.innerText = toPersianNum(percent) + '%';
+            progressText.innerText = `${toPersianNum(completedCount)} از ${toPersianNum(total)} کار انجام شده`;
+        }
+
+        // توابع عملیاتی
+        window.toggleTask = (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveToLocalStorage();
+                renderTasks();
+            }
+        };
+
+        window.deleteTask = (id) => {
+            tasks = tasks.filter(t => t.id !== id);
+            saveToLocalStorage();
+            renderTasks();
+        };
+
+        window.openModal = () => {
+            modal.classList.add('active');
+            taskInput.value = '';
+            setTimeout(() => taskInput.focus(), 100);
+        };
+
+        window.closeModal = () => {
+            modal.classList.remove('active');
+        };
+
+        window.saveTask = () => {
+            const title = taskInput.value.trim();
+            if (title) {
+                const newTask = {
+                    id: Date.now(), // تولید یک ID یکتا
+                    title: title,
+                    completed: false
+                };
+                tasks.push(newTask);
+                saveToLocalStorage();
+                renderTasks();
+                closeModal();
+            }
+        };
+
+        window.handleKeyPress = (e) => {
+            if (e.key === 'Enter') saveTask();
+        };
+
+        // بستن مودال با کلیک بیرون از آن
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
         });
+
+        // اجرای اولیه
+        renderTasks();
     </script>
 </body>
 </html>
